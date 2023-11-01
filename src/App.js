@@ -49,6 +49,7 @@ function App() {
         setColor(e.target.value)
     }
 
+
     const addColor = () => {
         const trimmedColor = color.trim();
 
