@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import NameForm from "./components/NameForm";
 import RedBackground from "./components/RedBackground";
 import YellowBackground from "./components/YellowBackground";
@@ -13,7 +13,7 @@ function App() {
     const [color, setColor] = useState('') // pick a color
     const [reColor, setReColor] = useState(false) //clicked and reclicked the button
     const [invalidColor, setInvalidColor] = useState('')
-
+    const [object, setObject] = useState([])
 
     const handleInput = (e) => {
         setNameInput(e.target.value)
@@ -49,6 +49,12 @@ function App() {
         setColor(e.target.value)
     }
 
+    useEffect(() => {
+        fetch(`https://jsonplaceholder.typicode.com/posts`)
+            .then((response) => response.json()).then((json) => setObject(json))
+            .catch((e) => console.log('error:', e))
+    }, []);
+
     const addColor = () => {
         const trimmedColor = color.trim();
 
@@ -66,11 +72,11 @@ function App() {
             const checkColor = new Option().style;
             checkColor.color = trimmedColor
 
-            if (checkColor.color ===trimmedColor) {
+            if (checkColor.color === trimmedColor) {
                 //document.body.style.backgroundColor = color
                 setReColor(true)
                 setInvalidColor('')
-               setColor('')
+                setColor('')
             } else {
                 setInvalidColor('Invalid color')
             }
@@ -86,9 +92,18 @@ function App() {
             <div style={{backgroundColor: colorToYellow}}>
                 <YellowBackground yellowColor={yellowColor}/>
             </div>
-            <div style={{backgroundColor:reColor?'white':color}}>
+            <div style={{backgroundColor: reColor ? 'white' : color}}>
                 <Color color={color} handleColor={handleColor} addColor={addColor} invalidColor={invalidColor}/>
             </div>
+            <ul>
+            {object.map((items)=>(
+                <li key={items.id}>
+                    title:{items.title}
+                    <div>description:{items.body}</div>
+                    <br/>
+                </li>
+            ))}
+            </ul>
         </div>
     );
 }
