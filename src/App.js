@@ -3,6 +3,7 @@ import NameForm from "./components/NameForm";
 import RedBackground from "./components/RedBackground";
 import YellowBackground from "./components/YellowBackground";
 import Color from "./components/Color";
+import axios from "axios";
 
 
 function App() {
@@ -50,9 +51,21 @@ function App() {
     }
 
     useEffect(() => {
-        fetch(`https://jsonplaceholder.typicode.com/posts`)
-            .then((response) => response.json()).then((json) => setObject(json))
-            .catch((e) => console.log('error:', e))
+        const fetchNames = async () => {            try {
+                const response = await axios.get(
+                    'https://api.nytimes.com/svc/books/v3/lists/names.json',
+                    {
+                        params: {
+                            " api-key": `${process.env.API_KEYS}`
+                        }
+                    }
+                )
+                setObject(response?.data);
+            } catch (error) {
+                setInvalidColor(error);
+            }
+        }
+      fetchNames().then().catch()
     }, []);
 
     const addColor = () => {
@@ -96,13 +109,22 @@ function App() {
                 <Color color={color} handleColor={handleColor} addColor={addColor} invalidColor={invalidColor}/>
             </div>
             <ul>
-            {object.map((items)=>(
-                <li key={items.id}>
-                    title:{items.title}
-                    <div>description:{items.body}</div>
-                    <br/>
-                </li>
-            ))}
+                {invalidColor && <p>error</p>}
+                {object.results ? object?.results.map((list,index) => (
+                    <li key={index}>
+                        <strong>List Name:</strong> {list.list_name}
+                        <br/>
+                        <strong>Display Name:</strong> {list.display_name}
+                        <br/>
+                        <strong>List Name Encoded:</strong> {list.list_name_encoded}
+                        <br/>
+                        <strong>Oldest published date:</strong> {list.oldest_published_date}
+                        <br/>
+                        <strong>Newest published date:</strong> {list.newest_published_date}
+                        <br/>
+                        <strong>Updated:</strong> {list.updated}
+                    </li>
+                )):<div>Loading....</div>}
             </ul>
         </div>
     );
